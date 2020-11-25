@@ -5,7 +5,7 @@ import {
     mdiHomeVariant,
     mdiMapMarker,
     mdiThemeLightDark,
-    mdiFileMultipleOutline,
+    mdiMap,
     mdiMenu
 } from '@mdi/js'
 
@@ -14,7 +14,7 @@ const icons = {
   mdiHomeVariant,
   mdiMapMarker,
   mdiThemeLightDark,
-  mdiFileMultipleOutline,
+  mdiMap,
   mdiMenu
 }
 

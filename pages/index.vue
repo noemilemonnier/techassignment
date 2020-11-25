@@ -26,3 +26,11 @@
   </v-row>
 </div>
 </template>
+
+<script>
+export default {
+    head: () => ({
+        title: "Welcome"
+    }),
+}
+</script>

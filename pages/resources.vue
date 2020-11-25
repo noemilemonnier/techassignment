@@ -7,27 +7,28 @@
                                 <v-card-title class="justify-center"><h3>Nearby Services</h3></v-card-title>
                                 <v-card-text>
                                     <v-row class="ma-1">
-                                        <vuetify-google-autocomplete id="id" class="mx-3" :v-model="inputAddress" placeholder="Enter an address" v-on:placechanged="getAddressData" v-on:no-results-found="noResultsFound" />
+                                        <vuetify-google-autocomplete id="id" class="mx-3" :v-model="inputAddress" placeholder="Enter an address" v-on:placechanged="getAddressData" v-on:no-results-found="noResultsFound" country="fi"/>
                                     </v-row>
                                 </v-card-text>
-                                <v-card-actions class="pa-1">
-                                    <v-btn class="mx-2" color="primary" type="submit" @click.prevent="searchButtonPressed">Search</v-btn>
+                                <v-card-actions class="ma-2 pa-1">
+                                    <v-btn class="mx-2" color="primary" :disabled="hasSearch" type="submit" @click.prevent="searchButtonPressed">Search</v-btn>
+                                    <v-btn class="mx-2" color="primary" :disabled="hasReset" @click.prevent="reset">Reset</v-btn>
                                 </v-card-actions>
                             </form>
                         </v-card>
             </v-col>
             <v-col v-if="hasResults" cols="12" md="6" lg="6">
                         <v-card class="justify-center ma-4 ">
-                            <GmapMap id="map" ref="map" :center="{lat, lng}" :zoom="10" style="height: 300px;">
+                            <GmapMap id="map" ref="map" :center="{lat, lng}" :zoom="14" style="height: 300px;">
                                 <GmapInfoWindow :options="infoOptions" :position="infoWindowPos" :opened="infoWinOpen" @closeclick="infoWinOpen=false"></GmapInfoWindow>
                                 <GmapMarker ref="myMarker" v-for="(u, index) in units" :key="index" :position="google && new google.maps.LatLng(u.position.lat, u.position.lng)" :clickable="true" @click="toggleInfoWindow(u,index)"></GmapMarker>
-                                <GmapMarker :icon="icon"  :position="google && new google.maps.LatLng(lat, lng)"></GmapMarker>
+                                <GmapMarker :icon="icon"  :position="google && new google.maps.LatLng(lat, lng)" :clickable="true" @click="toggleHereWindow()"></GmapMarker>
                             </GmapMap>
                         </v-card>
                 </v-col>
                 <h4 v-if="hasNoResults">No Services Nearby</h4>
         </v-row>
-        <v-row v-if="hasLoaded">
+        <v-row v-if="hasLoaded" class="ma-4">
                 <v-row class="ma-4">
                     <v-text-field class="ma-4" clearable label="Searching..." v-model="filters.search" ></v-text-field>
                 </v-row>
@@ -43,6 +44,9 @@
 					                    </template>
 					                    <template v-slot:[`item.street_address`]="{ item }">
 						                    {{ item.street_address  }}
+					                    </template>
+                                        <template v-slot:[`item.distance`]="{ item }">
+						                    {{ item.distance  }}
 					                    </template>
                                         <template v-slot:[`item.description`]="{ item }">
 						                    {{ item.description  }}
@@ -67,14 +71,14 @@ export default {
     data: () => ({
         inputAddress: '',
         map: null,
-        distanceBtwLocation: 0,
         count: 0,
         hasResults: false,
         hasNoResults: false,
         hasLoaded: false,
+        hasSearch: false,
+        hasReset: true,
         radius: 100,
         units: [],
-        markers: [],
         lat: 0,
         lng: 0,
         filters: {
@@ -84,6 +88,7 @@ export default {
             { text: "Name", value: "name" },
             { text: "Website", value: "www", sortable: false },
             { text: "Street Address", value: "street_address"},
+            { text: "Distance", value: "distance"},
             { text: "Description", value: "description" , sortable: false }
         ],
         icon: {
@@ -119,19 +124,35 @@ export default {
             }
         },
         noResultsFound() {
-            console.log("Result not found");
+           return "Result not found";
+        },
+        reset(){
+            this.hasSearch = false;
+            this.hasReset = true;
+            this.count = 0;
+            this.inputAddress = '';
+            this.units = null;
+            this.hasResults=  false;
+            this.hasNoResults= false;
+            this.hasLoaded= false;
         },
         async searchButtonPressed() {
             await apis.getUnitsWithDistance(this.lat, this.lng, this.radius)
             .then(
                 response => {
-                    console.log("Response count: " + response.data.count)
                     this.count = response.data.count;
-                    console.log("Count: " + this.count);
+                    this.hasSearch = true;
+                    this.hasReset = false;
                     this.retrieveUnits();
                 })
             .catch(error => {
                 console.error("There was an error in retrieving units!", error.message);
+            });
+        },
+        checkDuplicates(units, unit){
+            units.forEach( u => {
+                if(u.id === unit.id) return true;
+                return false;
             });
         },
         async retrieveUnits(){
@@ -139,33 +160,42 @@ export default {
                 await apis.getUnitsAll(this.lat, this.lng, this.radius, this.count)
                 .then(
                     response => {
-                        console.log(response.data.results);
-                        let website = null;
-                        let address = null;
-                        let nm = null;
-                        let descr = null;
-                        response.data.results.forEach(unit => {
-                            if(unit.www !== null) website = unit.www.fi;
-                            if(unit.description !== null) descr = unit.description.fi;
-                            if(unit.street_address.fi !== null) address = unit.street_address.fi;
-                            if(unit.name.fi !== null) nm = unit.name.fi;
-                            this.units.push({
-                                id: unit.id,
-                                is_active: unit.is_active,
-                                department: unit.department,
-                                description: unit.description,
-                                name: nm,
-                                street_address: address,
-                                description: descr,
-                                www: website,
-                                position: {
-                                    lat: unit.location.coordinates[0],
-                                    lng: unit.location.coordinates[1]
-                                }
+                        if(response.data.results !== null){
+                            response.data.results.forEach(unit => {
+                                let website = null;
+                                let address = null;
+                                let nm = null;
+                                let descr = null;
+                                if(unit.www !== null) website = unit.www.fi;
+                                if(unit.description !== null) descr = unit.description.fi;
+                                if(unit.street_address !== null) address = unit.street_address.fi;
+                                if(unit.name !== null) nm = unit.name.fi;
+                                const p1 = new google.maps.LatLng(this.lat, this.lng);
+                                const p2 = new google.maps.LatLng(unit.location.coordinates[1], unit.location.coordinates[0]);
+                                this.units.push({
+                                    id: unit.id,
+                                    is_active: unit.is_active,
+                                    department: unit.department,
+                                    description: unit.description,
+                                    name: nm,
+                                    street_address: address,
+                                    description: descr,
+                                    www: website,
+                                    position: {
+                                        lat: unit.location.coordinates[1],
+                                        lng: unit.location.coordinates[0]
+                                    },
+                                    distance: this.calcDistance(p1, p2)
+                                });
                             });
-                        });
-                        this.hasNoResults = false;
-                        this.hasLoaded = true;
+                            this.hasNoResults = false;
+                            this.hasLoaded = true;
+                        }
+                        else{
+                            this.hasNoResults = true;
+                            this.hasResults = false;
+                            this.hasLoaded = false;
+                        }
                     }
                 ).catch(error => {
                     console.error("There was an error in retrieving units!", error.message);
@@ -177,7 +207,6 @@ export default {
                 this.hasLoaded = false;
             }
             this.hasResults = true;
-            console.log(this.units[0].position.lat);
         },
         toggleInfoWindow(unit, idx) {
             this.infoWindowPos = unit.position;
@@ -195,9 +224,6 @@ export default {
             }
         },
         getInfoWindowContent(unit) {
-            const p1 = new google.maps.LatLng(this.lat, this.lng);
-            const p2 = new google.maps.LatLng(unit.position.lat, unit.position.lng);
-            this.distanceBtwLocation = this.calcDistance(p1, p2);
             return (
                 `<div>
                     <div>
@@ -206,16 +232,56 @@ export default {
                                 <h2> ${unit.name} </h2>
                             </div>
                         </div>
-                        <div v-if="unit.description.fi !== null" style="margin: 3px;">
-                            <span style="font-weight: bold;">Description:  </span>
-                            ${unit.description.fi}
+                        <div v-if="unit.www !== null" style="margin: 3px;">
+                            <span style="font-weight: bold;">Website:  </span>
+                                ${unit.www}
                             <br>
                         </div>
                         <div style="margin: 3px;">
                             <span style="font-weight: bold;">Distance:  </span>
-                            ${this.distanceBtwLocation}
+                            ${unit.distance}
                             <span>km</span>
                             <br>
+                        </div>
+                        <div v-if="unit.street_address !== null" style="margin: 3px;">
+                            <span style="font-weight: bold;">Address:  </span>
+                            ${unit.street_address}
+                            <span>km</span>
+                            <br>
+                        </div>
+                        <div v-if="unit.description !== null" style="margin: 3px;">
+                            <span style="font-weight: bold;">Description:  </span>
+                            ${unit.description}
+                            <br>
+                        </div>
+                    </div>
+                </div>`
+            );
+        },
+        toggleHereWindow(unit, idx) {
+            const p1 = new google.maps.LatLng(this.lat, this.lng);
+            this.infoWindowPos = p1;
+            this.infoOptions.content = this.getHereContent();
+
+            //check if its the same marker that was selected if yes toggle
+            if (this.currentMidx == idx) {
+              this.infoWinOpen = !this.infoWinOpen;
+            }
+            //if different marker set infowindow to open and reset current place index
+            else {
+              this.infoWinOpen = true;
+              this.currentMidx = idx;
+
+            }
+        },
+        getHereContent() {
+            return (
+                `<div>
+                    <div>
+                        <div>
+                            <div style="margin: 3px; color: rgb(190, 50, 35);">
+                                <h2> You are here </h2>
+                            </div>
                         </div>
                     </div>
                 </div>`
@@ -237,7 +303,7 @@ export default {
 }
 #h2{
     font-weight: bold;
-    color:rgb(190, 50, 35);
+    color:rgb(143, 210, 248);
 }
 .v-card__text, .v-card__title {
   word-break: normal; /* maybe !important  */

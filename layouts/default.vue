@@ -8,7 +8,7 @@
           </nuxt-link>
         </div>
         <v-list-item class="overline font-weight-light" link nuxt to="/"><v-icon color="primary" size="28px">{{ $i.mdiHomeVariant }}</v-icon >&emsp;Home page</v-list-item>
-        <v-list-item class="overline font-weight-light" link nuxt to="/resources"><v-icon color="primary" size="28px">{{ $i.mdiFileMultipleOutline }}</v-icon>&emsp;Resources</v-list-item>
+        <v-list-item class="overline font-weight-light" link nuxt to="/resources"><v-icon color="primary" size="28px">{{ $i.mdiMap }}</v-icon>&emsp;App</v-list-item>
         <v-list-item class="overline font-weight-light" link nuxt to="/contact"><v-icon color="primary" size="28px">{{ $i.mdiEmail }}</v-icon>&emsp;Contact</v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -25,9 +25,9 @@
       </v-container>
     </v-main>
 
-    <v-footer app absolute padless>
+    <v-footer absolute padless>
       <v-card color="color-footer" elevation="3" flat tile width="100%">
-        <v-card-text class="pb-1 primary--text">
+        <v-card-text class="pb-1 primary--text text-right">
           <div> Made by Noemi Lemonnier</div>
         </v-card-text>
       </v-card>
