@@ -1,3 +1,6 @@
+/*
+* All APIs call to Api.Hel.Fi that could be needed using axios
+*/
 import axios from 'axios'
 
 

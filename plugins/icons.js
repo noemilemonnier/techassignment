@@ -2,19 +2,25 @@ import Vue from 'vue'
 
 import {
     mdiEmail,
+    mdiLinkedin,
+    mdiGithub,
     mdiHomeVariant,
     mdiMapMarker,
     mdiThemeLightDark,
     mdiMap,
+    mdiCog,
     mdiMenu
 } from '@mdi/js'
 
 const icons = {
   mdiEmail,
+  mdiGithub,
+  mdiLinkedin,
   mdiHomeVariant,
   mdiMapMarker,
   mdiThemeLightDark,
   mdiMap,
+  mdiCog,
   mdiMenu
 }
 

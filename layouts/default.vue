@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer app  v-model="drawer">
+    <v-navigation-drawer v-model="drawer" app>
       <v-list dense nav>
         <div class="text-center">
           <nuxt-link to="/">
@@ -11,9 +11,17 @@
         <v-list-item class="overline font-weight-light" link nuxt to="/resources"><v-icon color="primary" size="28px">{{ $i.mdiMap }}</v-icon>&emsp;App</v-list-item>
         <v-list-item class="overline font-weight-light" link nuxt to="/contact"><v-icon color="primary" size="28px">{{ $i.mdiEmail }}</v-icon>&emsp;Contact</v-list-item>
       </v-list>
+      <v-spacer></v-spacer>
+      <v-footer app absolute padless>
+        <v-card elevation="3" flat tile width="100%">
+          <v-card-text class="pb-1 primary--text text-right">
+            <div> Made by Noemi Lemonnier</div>
+          </v-card-text>
+        </v-card>
+      </v-footer>
     </v-navigation-drawer>
 
-    <v-app-bar app absolute>
+    <v-app-bar app absolute src="/img/splash-blue.png">
       <v-app-bar-nav-icon alt="Navigation" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-spacer></v-spacer>
       <v-btn icon color="secondary" @click.stop="onDarkModeToggled"><v-icon size="28px">{{ $i.mdiThemeLightDark }}</v-icon></v-btn>
@@ -25,13 +33,6 @@
       </v-container>
     </v-main>
 
-    <v-footer absolute padless>
-      <v-card color="color-footer" elevation="3" flat tile width="100%">
-        <v-card-text class="pb-1 primary--text text-right">
-          <div> Made by Noemi Lemonnier</div>
-        </v-card-text>
-      </v-card>
-    </v-footer>
   </v-app>
 </template>
 

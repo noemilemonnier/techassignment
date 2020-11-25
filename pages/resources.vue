@@ -6,6 +6,7 @@
                             <form>
                                 <v-card-title class="justify-center"><h3>Nearby Services</h3></v-card-title>
                                 <v-card-text>
+                                    <p class="caption mx-3">Enter an address in Helsinki, Finland and it will display near by services available.</p>
                                     <v-row class="ma-1">
                                         <vuetify-google-autocomplete id="id" class="mx-3" :v-model="inputAddress" placeholder="Enter an address" v-on:placechanged="getAddressData" v-on:no-results-found="noResultsFound" country="fi"/>
                                     </v-row>
@@ -29,11 +30,11 @@
                 <h4 v-if="hasNoResults">No Services Nearby</h4>
         </v-row>
         <v-row v-if="hasLoaded" class="ma-4">
-                <v-row class="ma-4">
-                    <v-text-field class="ma-4" clearable label="Searching..." v-model="filters.search" ></v-text-field>
+                <v-row class="mx-4">
+                    <v-text-field clearable label="Searching..." v-model="filters.search" ></v-text-field>
                 </v-row>
-                <v-row class="ma-4">
-                    <v-card class="ma-4" outlined>
+                <v-row class="mx-4">
+                    <v-card outlined>
                         <client-only>
                                     <v-data-table :headers="tableHeaders" :items="formattedUnits" :search="filters.search" :items-per-page="40">
                                         <template v-slot:[`item.name`]="{ item }">
