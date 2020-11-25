@@ -117,6 +117,7 @@ export default {
         }
     },
     methods: {
+        //Stores the coordinates of the inputed address
         getAddressData(addressData) {
             if (addressData !== null) {
                 this.lat = addressData.latitude;
@@ -126,6 +127,7 @@ export default {
         noResultsFound() {
            return "Result not found";
         },
+        //Resets the fields
         reset(){
             this.hasSearch = false;
             this.hasReset = true;
@@ -136,6 +138,7 @@ export default {
             this.hasNoResults= false;
             this.hasLoaded= false;
         },
+        //Caculates the amount of results for the request and set the page_size field so all results can be shown
         async searchButtonPressed() {
             await apis.getUnitsWithDistance(this.lat, this.lng, this.radius)
             .then(
@@ -149,12 +152,7 @@ export default {
                 console.error("There was an error in retrieving units!", error.message);
             });
         },
-        checkDuplicates(units, unit){
-            units.forEach( u => {
-                if(u.id === unit.id) return true;
-                return false;
-            });
-        },
+        //Get the list of units according to the location, radius and page_size
         async retrieveUnits(){
             if(this.count > 0 ){
                 await apis.getUnitsAll(this.lat, this.lng, this.radius, this.count)
@@ -162,6 +160,7 @@ export default {
                     response => {
                         if(response.data.results !== null){
                             response.data.results.forEach(unit => {
+                                //To check if any field is null as many are and randomly
                                 let website = null;
                                 let address = null;
                                 let nm = null;
@@ -170,8 +169,7 @@ export default {
                                 if(unit.description !== null) descr = unit.description.fi;
                                 if(unit.street_address !== null) address = unit.street_address.fi;
                                 if(unit.name !== null) nm = unit.name.fi;
-                                const p1 = new google.maps.LatLng(this.lat, this.lng);
-                                const p2 = new google.maps.LatLng(unit.location.coordinates[1], unit.location.coordinates[0]);
+                                //Store information field desired in array
                                 this.units.push({
                                     id: unit.id,
                                     is_active: unit.is_active,
@@ -185,11 +183,11 @@ export default {
                                         lat: unit.location.coordinates[1],
                                         lng: unit.location.coordinates[0]
                                     },
-                                    distance: this.calcDistance(p1, p2)
+                                    distance: this.getDistanceFromLatLonInKm(this.lat, this.lng, unit.location.coordinates[1], unit.location.coordinates[0])
                                 });
                             });
-                            this.hasNoResults = false;
-                            this.hasLoaded = true;
+                            this.hasNoResults = false; //do not load the no result message
+                            this.hasLoaded = true; //load the map
                         }
                         else{
                             this.hasNoResults = true;
@@ -206,8 +204,9 @@ export default {
                 this.hasResults = false;
                 this.hasLoaded = false;
             }
-            this.hasResults = true;
+             this.hasResults = true; //load the table
         },
+        //This will give a information window for each unit of the list
         toggleInfoWindow(unit, idx) {
             this.infoWindowPos = unit.position;
             this.infoOptions.content = this.getInfoWindowContent(unit);
@@ -223,6 +222,7 @@ export default {
 
             }
         },
+        //This is what each unit information window contains
         getInfoWindowContent(unit) {
             return (
                 `<div>
@@ -258,7 +258,8 @@ export default {
                 </div>`
             );
         },
-        toggleHereWindow(unit, idx) {
+        //This is the window for the input address
+        toggleHereWindow() {
             const p1 = new google.maps.LatLng(this.lat, this.lng);
             this.infoWindowPos = p1;
             this.infoOptions.content = this.getHereContent();
@@ -274,6 +275,7 @@ export default {
 
             }
         },
+        //This is what the input address window
         getHereContent() {
             return (
                 `<div>
@@ -287,9 +289,23 @@ export default {
                 </div>`
             );
         },
-        calcDistance(p1, p2) {
-          return (google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000).toFixed(2);
+        // To calculate the distance between two coordinates in KM
+        // Solution from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula?rq=1
+         getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+            const R = 6371; // Radius of the earth in km
+            let dLat = this.deg2rad(lat2-lat1);
+            let dLon = this.deg2rad(lon2-lon1);
+            let a = (
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+                Math.sin(dLon/2) * Math.sin(dLon/2))
+            let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            let d = R * c; // Distance in km
+            return d.toFixed(2);
         },
+        deg2rad(deg) {
+            return deg * (Math.PI/180)
+        }
     }
 }
 </script>

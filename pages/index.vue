@@ -20,6 +20,14 @@
           >
             Github Repository
           </a>
+          <span class="ml-4"/>
+          <a
+            href="https://helsinki-services.herokuapp.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Live Demo
+          </a>
         </v-card-text>
       </v-card>
     </v-col>
