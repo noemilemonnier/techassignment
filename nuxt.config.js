@@ -1,35 +1,39 @@
 import colors from 'vuetify/es5/util/colors'
 
 export default {
-  // Global page headers (https://go.nuxtjs.dev/config-head)
+  // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
+  ssr: false,
+
   head: {
-    titleTemplate: '%s - helsinki-services',
-    title: 'helsinki-services',
+    titleTemplate: '%s - Helsinki Services',
+    title: 'Helsinki Services',
+    noscript: [
+      {
+        innerHTML:
+          'This website requires javascript to run. Please enable it in browser settings.',
+      },
+    ],
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: '' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/png', href: '/img/logo.png' }
     ]
   },
-
-  // Global CSS (https://go.nuxtjs.dev/config-css)
-  css: [
-  ],
-
-  // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
+  loading: {
+    color: '#0277bd'
+  },
   plugins: [
+    '~/plugins/icons',
+    '~/plugins/vue2-maps',
+    '~/plugins/vue-autocomplete'
   ],
-
-  // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
-
-  // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
-    // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
+    '@nuxtjs/dotenv'
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -39,17 +43,33 @@ export default {
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
+    defaultAssets: { font: false, icons: false },
+    icons: {
+      iconfont: 'mdiSvg',
+    },
     theme: {
       dark: true,
       themes: {
-        dark: {
-          primary: colors.blue.darken2,
-          accent: colors.grey.darken3,
-          secondary: colors.amber.darken3,
+        light: {
+          primary: '#72c6f6', // custom blue
+          accent: '#b1b1b1', // custom gray
+          secondary: '#e8b266', // custom faded orange
+          background: '#f5f5f5', // grey lighten-4
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
-          success: colors.green.accent3
+          success: colors.green.accent3,
+          'color-footer': '#f0f0f0'
+        },
+        dark: {
+          primary: '#7e7e7e', // custom gray
+          accent: colors.grey.darken3,
+          secondary: '#9c27b0', //custom indigo
+          info: colors.teal.lighten1,
+          warning: colors.amber.base,
+          error: colors.deepOrange.accent4,
+          success: colors.green.accent3,
+          'color-footer': '#1e1e1e'
         }
       }
     }
@@ -57,5 +77,6 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    extend( config, ctx ){}
   }
 }
