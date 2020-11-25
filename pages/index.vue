@@ -2,7 +2,7 @@
 <div>
   <v-row justify="center" align="center">
     <v-col cols="12" sm="8" md="6">
-      <v-card>
+      <v-card class="mt-10" style="width: 100%; height=100%" flat outlined>
         <v-card-title class="headline">
           Welcome to Helsinki Services
         </v-card-title>

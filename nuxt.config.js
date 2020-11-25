@@ -54,7 +54,7 @@ export default {
           primary: '#72c6f6', // custom blue
           accent: '#b1b1b1', // custom gray
           secondary: '#e8b266', // custom faded orange
-          background: '#f5f5f5', // grey lighten-4
+          background: '#e3e3e3', // grey lighten-4
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
