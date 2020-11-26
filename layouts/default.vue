@@ -12,13 +12,9 @@
         <v-list-item class="overline font-weight-light" link nuxt to="/contact"><v-icon color="primary" size="28px">{{ $i.mdiEmail }}</v-icon>&emsp;Contact</v-list-item>
       </v-list>
       <v-spacer></v-spacer>
-      <v-footer app absolute padless>
-        <v-card elevation="3" flat tile width="100%">
-          <v-card-text class="pb-1 primary--text text-right">
-            <div> Made by Noemi Lemonnier</div>
-          </v-card-text>
-        </v-card>
-      </v-footer>
+      <template v-slot:append>
+				<v-list-item><v-btn small class="white--text"  text color="primary">Made By Noemi Lemonnier</v-btn></v-list-item>
+			</template>
     </v-navigation-drawer>
 
     <v-app-bar app absolute src="/img/splash-blue.png">
