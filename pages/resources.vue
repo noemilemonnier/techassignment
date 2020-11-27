@@ -8,7 +8,7 @@
                                 <v-card-text>
                                     <p class="caption mx-3">Enter an address in Helsinki, Finland and it will display near by services available.</p>
                                     <v-row class="ma-1">
-                                        <vuetify-google-autocomplete id="id" class="mx-3" :v-model="inputAddress" placeholder="Enter an address" v-on:placechanged="getAddressData" v-on:no-results-found="noResultsFound" country="fi"/>
+                                        <vuetify-google-autocomplete :disabled="!isValid" id="id" class="mx-3" :v-model="inputAddress" placeholder="Enter an address" v-on:placechanged="getAddressData" v-on:no-results-found="noResultsFound" country="fi"/>
                                     </v-row>
                                 </v-card-text>
                                 <v-card-actions class="ma-2 pa-1">
@@ -72,6 +72,7 @@ export default {
     data: () => ({
         inputAddress: '',
         map: null,
+        isValid: true,
         count: 0,
         hasResults: false,
         hasNoResults: false,
@@ -138,6 +139,7 @@ export default {
             this.hasResults=  false;
             this.hasNoResults= false;
             this.hasLoaded= false;
+            this.isValid = true;
         },
         //Caculates the amount of results for the request and set the page_size field so all results can be shown
         async searchButtonPressed() {
@@ -146,6 +148,7 @@ export default {
                 response => {
                     this.count = response.data.count;
                     this.hasSearch = true;
+                    this.isValid = false;
                     this.hasReset = false;
                     this.retrieveUnits();
                 })
