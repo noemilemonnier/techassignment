@@ -38,8 +38,25 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
+    '@nuxtjs/axios',
+    '@nuxtjs/proxy'
   ],
 
+  axios: {
+    baseURL: "https://api.hel.fi/servicemap/v2",
+    proxyHeaders: false,
+    credentials: false
+  },
+
+  proxy: {
+    '/api': {
+      target: 'https://api.hel.fi/servicemap/v2',
+      pathRewrite: {
+        '^/api' : '/'
+        },
+      changeOrigin: true
+    }
+  },
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {
     customVariables: ['~/assets/variables.scss'],

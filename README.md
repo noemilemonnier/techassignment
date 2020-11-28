@@ -6,7 +6,7 @@
   <p align="center">
     Technical Assignment for Solteq - Talent Development Program
     <br />
-    <a href="https://github.com/noemilemonnier/techassignment"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/noemilemonnier/helsinki-services"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://helsinki-services.herokuapp.com">View Demo</a>
@@ -58,7 +58,7 @@ npm install npm@latest -g
 
 1. Clone the repo
 ```sh
-git clone https://github.com/noemilemonnier/techassignment
+git clone https://github.com/noemilemonnier/helsinki-services
 ```
 2. Go in the folder
 ```sh
@@ -81,5 +81,5 @@ This Web App was made to get a list of services stored in Dev.Hel.Fi Service Map
 
 Noemi Lemonnier
 
-Project Link: [https://github.com/noemilemonnier/techassignment](https://github.com/noemilemonnier/techassignment)
+Project Link: [https://github.com/noemilemonnier/helsinki-services](https://github.com/noemilemonnier/helsinki-services)
 

@@ -1,5 +1,5 @@
 /*
-* All APIs call to Api.Hel.Fi that could be needed using axios
+* All APIs call to Dev.Hel.Fi that could be needed using axios
 */
 import axios from 'axios'
 
@@ -7,7 +7,6 @@ import axios from 'axios'
 const api = axios.create({
     baseURL: 'https://api.hel.fi/servicemap/v2',
     headers: {
-        //'Access-Control-Allow-Origin': '*',
         'Content-type': 'application/json'
     }
 })
