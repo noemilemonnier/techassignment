@@ -10,17 +10,11 @@
           <p> This Web App will allow you to find services using <a href="https://dev.hel.fi/apis/service-map-backend-api"  target="_blank" rel="noopener noreferrer">Dev.Hel.Fi Service Map</a> in Helsinki, Finland.</p>
           <p> To navigate, click on <v-icon>{{$i.mdiMenu}}</v-icon> on the top left corner. </p>
           <hr class="my-3">
-          <v-row class="mb-6" no-gutters>
-            <v-col md="4" class="pa-2 ml-4" >
+          <v-row align="center" justify="center" no-gutters>
               <a href="https://github.com/noemilemonnier/helsinki-services" target="_blank" rel="noopener noreferrer"> Github Repository </a>
-            </v-col>
-            <v-col md="3" class="pa-2" offset-md="4">
-              <a href="https://helsinki-services.herokuapp.com" target="_blank" rel="noopener noreferrer"> Live Demo </a>
-            </v-col>
           </v-row>
           <hr class="my-3">
-          <p align="justify" class="mt-7 caption"><v-icon class="spin">{{$i.mdiCog}}</v-icon> This web app uses NuxtJS, Vue2, Vuetify, Google Map APIs and Dev.Hel.Fi Service Map API.</p>
-          <p class="caption">This web app was developed for Solteq Talent Evaluation Task.</p>
+          <p align="justify" class="mt-7 caption"><v-icon class="spin">{{$i.mdiCog}}</v-icon> This web app uses NuxtJS, Vue2, Vuetify, Google Map APIs and Dev.Hel.Fi Service Map API. This web app was developed for Solteq Talent Evaluation Task.</p>
         </v-card-text>
       </v-card>
     </v-col>
