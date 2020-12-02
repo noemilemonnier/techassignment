@@ -27,8 +27,7 @@ export default {
   },
   plugins: [
     '~/plugins/icons',
-    '~/plugins/vue2-maps',
-    '~/plugins/vue-autocomplete'
+    '~/plugins/vue2-maps'
   ],
   components: true,
   buildModules: [

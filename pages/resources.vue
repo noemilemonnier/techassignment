@@ -1,15 +1,15 @@
 <template>
     <div>
-        <v-row class="mt-5 mb-5">
+    <v-container>
+        <v-row>
             <v-col cols="12" md="6" lg="6">
-                        <v-card class="ma-4" elevation="3" style="width: 400px;" shaped outlined>
+                        <v-card elevation="3" style="width: 100%;" height="100%" shaped outlined>
                             <form>
                                 <v-card-title class="justify-center"><h3>Nearby Services</h3></v-card-title>
                                 <v-card-text>
                                     <p class="caption mx-3">Enter an address in Helsinki, Finland and it will display near by services available.</p>
                                     <v-row class="ma-1">
-                                        <vuetify-google-autocomplete :disabled="!isValid" id="id" class="mx-3" :v-model="inputAddress" placeholder="Enter an address" v-on:placechanged="getAddressData" v-on:no-results-found="noResultsFound" country="fi"/>
-                                    </v-row>
+                                        <gmap-autocomplete class="mx-3" style="width: 100%; border-bottom-style: dotted;" :disabled="!isValid" :v-model="inputAddress" placeholder="Enter an address" @place_changed="getAddressData" :options="autocompleteOptions"> </gmap-autocomplete>                                    </v-row>
                                 </v-card-text>
                                 <v-card-actions class="ma-2 pa-1">
                                     <v-btn class="mx-2" color="primary" :disabled="hasSearch" type="submit" @click.prevent="searchButtonPressed">Search</v-btn>
@@ -19,17 +19,20 @@
                         </v-card>
             </v-col>
             <v-col v-if="hasResults" cols="12" md="6" lg="6">
-                        <v-card class="justify-center ma-4 ">
+                        <v-card class="justify-center" height="100%" tile>
                             <GmapMap id="map" ref="map" :center="{lat, lng}" :zoom="14" style="height: 300px;">
                                 <GmapInfoWindow :options="infoOptions" :position="infoWindowPos" :opened="infoWinOpen" @closeclick="infoWinOpen=false"></GmapInfoWindow>
                                 <GmapMarker ref="myMarker" v-for="(u, index) in units" :key="index" :position="google && new google.maps.LatLng(u.position.lat, u.position.lng)" :clickable="true" @click="toggleInfoWindow(u,index)"></GmapMarker>
                                 <GmapMarker :icon="icon"  :position="google && new google.maps.LatLng(lat, lng)" :clickable="true" @click="toggleHereWindow()"></GmapMarker>
                             </GmapMap>
                         </v-card>
-                </v-col>
-                <h4 v-if="hasNoResults">No Services Nearby</h4>
+                        <h4 v-if="hasNoResults">No Services Nearby</h4>
+            </v-col>
         </v-row>
-        <v-row v-if="hasLoaded" class="ma-4">
+    </v-container>
+    <v-container>
+        <v-row align="center" justify="center">
+            <v-col class="ma-1" v-if="hasLoaded" cols="12" md="" lg="6">
                 <v-row class="mx-4">
                     <v-text-field clearable label="Searching..." v-model="filters.search" ></v-text-field>
                 </v-row>
@@ -56,7 +59,9 @@
 			            </client-only>
 		            </v-card>
                 </v-row>
+            </v-col>
         </v-row>
+    </v-container>
     </div>
 </template>
 
@@ -64,6 +69,7 @@
 import axios from "axios";
 import {gmapApi} from 'vue2-google-maps'
 import apis from "../api/index"
+import functions from "../app/functions"
 
 export default {
     head: () => ({
@@ -74,6 +80,11 @@ export default {
         map: null,
         isValid: true,
         count: 0,
+        autocompleteOptions: {
+            componentRestrictions: {
+                country: ['fi']
+            }
+        },
         hasResults: false,
         hasNoResults: false,
         hasLoaded: false,
@@ -122,12 +133,9 @@ export default {
         //Stores the coordinates of the inputed address
         getAddressData(addressData) {
             if (addressData !== null) {
-                this.lat = addressData.latitude;
-                this.lng = addressData.longitude;
+                this.lat = addressData.geometry.location.lat();
+                this.lng = addressData.geometry.location.lng();
             }
-        },
-        noResultsFound() {
-           return "Result not found";
         },
         //Resets the fields
         reset(){
@@ -140,6 +148,12 @@ export default {
             this.hasNoResults= false;
             this.hasLoaded= false;
             this.isValid = true;
+        },
+        //When no results are found
+        noResults(){
+            this.hasNoResults = true;
+            this.hasResults = false;
+            this.hasLoaded = false;
         },
         //Caculates the amount of results for the request and set the page_size field so all results can be shown
         async searchButtonPressed() {
@@ -187,16 +201,14 @@ export default {
                                         lat: unit.location.coordinates[1],
                                         lng: unit.location.coordinates[0]
                                     },
-                                    distance: this.getDistanceFromLatLonInKm(this.lat, this.lng, unit.location.coordinates[1], unit.location.coordinates[0])
+                                    distance: functions.getDistanceFromLatLonInKm(this.lat, this.lng, unit.location.coordinates[1], unit.location.coordinates[0])
                                 });
                             });
                             this.hasNoResults = false; //do not load the no result message
                             this.hasLoaded = true; //load the map
                         }
                         else{
-                            this.hasNoResults = true;
-                            this.hasResults = false;
-                            this.hasLoaded = false;
+                            this.noResults()
                         }
                     }
                 ).catch(error => {
@@ -204,16 +216,14 @@ export default {
                 });
             }
             else{
-                this.hasNoResults = true;
-                this.hasResults = false;
-                this.hasLoaded = false;
+                this.noResults()
             }
              this.hasResults = true; //load the table
         },
         //This will give a information window for each unit of the list
         toggleInfoWindow(unit, idx) {
             this.infoWindowPos = unit.position;
-            this.infoOptions.content = this.getInfoWindowContent(unit);
+            this.infoOptions.content = functions.getInfoWindowContent(unit);
 
             //check if its the same marker that was selected if yes toggle
             if (this.currentMidx == idx) {
@@ -225,90 +235,23 @@ export default {
               this.currentMidx = idx;
 
             }
-        },
-        //This is what each unit information window contains
-        getInfoWindowContent(unit) {
-            return (
-                `<div>
-                    <div>
-                        <div>
-                            <div style="margin: 3px; color: rgb(190, 50, 35);">
-                                <h2> ${unit.name} </h2>
-                            </div>
-                        </div>
-                        <div v-if="unit.www !== null" style="margin: 3px;">
-                            <span style="font-weight: bold;">Website:  </span>
-                                ${unit.www}
-                            <br>
-                        </div>
-                        <div style="margin: 3px;">
-                            <span style="font-weight: bold;">Distance:  </span>
-                            ${unit.distance}
-                            <span>km</span>
-                            <br>
-                        </div>
-                        <div v-if="unit.street_address !== null" style="margin: 3px;">
-                            <span style="font-weight: bold;">Address:  </span>
-                            ${unit.street_address}
-                            <span>km</span>
-                            <br>
-                        </div>
-                        <div v-if="unit.description !== null" style="margin: 3px;">
-                            <span style="font-weight: bold;">Description:  </span>
-                            ${unit.description}
-                            <br>
-                        </div>
-                    </div>
-                </div>`
-            );
         },
         //This is the window for the input address
         toggleHereWindow() {
             const p1 = new google.maps.LatLng(this.lat, this.lng);
             this.infoWindowPos = p1;
-            this.infoOptions.content = this.getHereContent();
+            this.infoOptions.content = functions.getHereContent();
 
             //check if its the same marker that was selected if yes toggle
-            if (this.currentMidx == idx) {
+            if (this.currentMidx == 'mylocation') {
               this.infoWinOpen = !this.infoWinOpen;
             }
             //if different marker set infowindow to open and reset current place index
             else {
               this.infoWinOpen = true;
-              this.currentMidx = idx;
+              this.currentMidx = "mylocation";
 
             }
-        },
-        //This is what the input address window
-        getHereContent() {
-            return (
-                `<div>
-                    <div>
-                        <div>
-                            <div style="margin: 3px; color: rgb(190, 50, 35);">
-                                <h2> You are here </h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>`
-            );
-        },
-        // To calculate the distance between two coordinates in KM
-        // Solution from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula?rq=1
-         getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
-            const R = 6371; // Radius of the earth in km
-            let dLat = this.deg2rad(lat2-lat1);
-            let dLon = this.deg2rad(lon2-lon1);
-            let a = (
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
-                Math.sin(dLon/2) * Math.sin(dLon/2))
-            let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            let d = R * c; // Distance in km
-            return d.toFixed(2);
-        },
-        deg2rad(deg) {
-            return deg * (Math.PI/180)
         }
     }
 }
